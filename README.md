@@ -88,7 +88,7 @@ where *NC* = *reduce*(empty sequence).
 
 #### Iterator restrictions
 
-The iterator passed to *reduce* must have its values consumed prior to the *reduce* callback exiting. Storing the iterator and attempting to extract values from it later is not permitted and will raise *streem.LogicError*. In particular, *reduce* can’t return a generator or another lazy object that hasn’t yet consumed data from the iterator. This is because the underlying iterator over *items* will have advanced to following items and the items required for constructing the nodes will no longer be available.
+The iterator passed to *reduce* must have its values consumed prior to the *reduce* callback exiting, and *reduce* can’t access the data through any other iterators, including ones passed to other *reduce* calls. Storing the iterator and attempting to extract values from it later is not permitted and will raise *streem.LogicError*. In particular, *reduce* can’t return a generator or another lazy object that hasn’t yet consumed data from the iterator. This is because the underlying iterator over *items* will have advanced to following items and the items required for constructing the nodes will no longer be available.
 
 #### Default callbacks
 
