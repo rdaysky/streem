@@ -69,18 +69,20 @@ The *reduce* callback can exit early after consuming only part of nodes provided
 
 The example at the end of this page corresponds to the following expression in terms of callbacks:
 
-    reduce([
-        map(Node(1, "Tree (data structure)", reduce([
-            map(Node(2, "Definition", NC)),
-            map(Node(2, "Terminologies used in Trees", reduce([
-                map(Node(3, "Data type vs. data structure", NC)),
-                map(Node(3, "Recursive", NC)),
-                map(Node(3, "Type theory", NC)),
-                map(Node(3, "Mathematical", NC)),
-            ]))),
-            map(Node(2, "Terminology", NC)),
+```python
+reduce([
+    map(Node(1, "Tree (data structure)", reduce([
+        map(Node(2, "Definition", NC)),
+        map(Node(2, "Terminologies used in Trees", reduce([
+            map(Node(3, "Data type vs. data structure", NC)),
+            map(Node(3, "Recursive", NC)),
+            map(Node(3, "Type theory", NC)),
+            map(Node(3, "Mathematical", NC)),
         ]))),
-    ])
+        map(Node(2, "Terminology", NC)),
+    ]))),
+])
+```
 
 where *NC* = *reduce*(empty sequence).
 
@@ -110,50 +112,54 @@ assigning level 1 to group header lines and level 2 to lines with settings, will
 
 A table of contents of a Markdown document can be generated like this (simplified):
 
-    import streem
-    import pprint
+```python
+import streem
+import pprint
 
-    src = """
-    # Tree (data structure)
-    In computer science, a tree is...
+src = """
+# Tree (data structure)
+In computer science, a tree is...
 
-    ## Definition
-    A tree is a (possibly non-linear) data structure made up of nodes or vertices and edges without having any cycle. ...
+## Definition
+A tree is a (possibly non-linear) data structure made up of nodes or vertices and edges without having any cycle. ...
 
-    ## Terminologies used in Trees
-    Root – The top node in a tree. ...
+## Terminologies used in Trees
+Root – The top node in a tree. ...
 
-    ### Data type vs. data structure
-    There is a distinction between a tree as an abstract data type and as a data structure, analogous to the distinction between a list and a linked list.
-    As a data type, ...
+### Data type vs. data structure
+There is a distinction between a tree as an abstract data type and as a data structure, analogous to the distinction between a list and a linked list.
+As a data type, ...
 
-    ### Recursive
-    Recursively, as a data type a tree is defined as...
+### Recursive
+Recursively, as a data type a tree is defined as...
 
-    ### Type theory
-    ...
+### Type theory
+...
 
-    ### Mathematical
-    ...
+### Mathematical
+...
 
-    ## Terminology
-    ...
-    """
+## Terminology
+...
+"""
 
-    items = [streem.Item(
-        value=line.lstrip("#").strip(),
-        level=sum(1 for ch in line if ch == "#"),
-    ) for line in src.splitlines() if line.startswith("#")]
+items = [streem.Item(
+    value=line.lstrip("#").strip(),
+    level=sum(1 for ch in line if ch == "#"),
+) for line in src.splitlines() if line.startswith("#")]
 
-    pprint.pprint(streem.streem(items))
+pprint.pprint(streem.streem(items))
+```
 
 Result:
 
-    [('Tree (data structure)',
-      ['Definition',
-       ('Terminologies used in Trees',
-        ['Data type vs. data structure',
-         'Recursive',
-         'Type theory',
-         'Mathematical']),
-       'Terminology'])]
+```python
+[('Tree (data structure)',
+  ['Definition',
+   ('Terminologies used in Trees',
+    ['Data type vs. data structure',
+     'Recursive',
+     'Type theory',
+     'Mathematical']),
+   'Terminology'])]
+```
