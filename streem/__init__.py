@@ -67,7 +67,10 @@ def with_levels(items, starting_level, mandatory_levels, mandatory_levels_all):
     last_level = starting_level - 1
 
     for item in items:
-        item_value, item_level, item_next_level = item.get(level)
+        item_value, item_level, level = item.get(level)
+
+        if item_value is None:
+            continue
 
         if mandatory_levels_all:
             for l in range(last_level + 1, item_level):
@@ -77,11 +80,8 @@ def with_levels(items, starting_level, mandatory_levels, mandatory_levels_all):
                 if last_level < l < item_level:
                     yield None, l
 
-        if item_value is not None:
-            yield item_value, item_level
-            last_level = item_level
-
-        level = item_next_level
+        yield item_value, item_level
+        last_level = item_level
 
 class SourceData:
     __slots__ = ["mandatory_levels_max", "iter", "f_map", "f_reduce", "reduce_of_no_children", "ni_active"]
@@ -117,7 +117,7 @@ class NodeIterator:
 
     def advance(self, consume_only=False):
         if self.src.ni_active is not self:
-            raise LogicError("iterator inactive")
+            raise LogicError("iterator expired")
 
         item_value, item_level = self.src.iter.peek()
         assert item_level <= self.level

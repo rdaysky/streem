@@ -53,17 +53,17 @@ The return value of the outermost *reduce* call. See below.
 #### Exceptions
 
 * streem.**ItemError** — An error with construction of the *items* sequence, such as mismatched levels.
-* streem.**LogicError** — Failure to follow prescribed usage of the function, such as using iterators provided to callbacks incorrectly.
+* streem.**LogicError** — Failure to follow prescribed usage of the function, such as using iterators provided to callbacks past their expiration point.
 
 #### Callback invocation
 
 The callbacks work with **streem.Node** objects that have three attributes:
 
 * **level** — The calculated level of the corresponding item.
-* **value** — The value of the corresponding item, or *None* if this node was inserted due to mandatory_levels requirements.
+* **value** — The value of the corresponding item, or *None* if this node was inserted due to *mandatory_levels* requirements.
 * **children** — The result of *reduce* call on the sequence of child nodes (after *map* calls).
 
-Firstly, an iterator over top-level nodes is created and passed as argument to *reduce*. That iterator yields values that are the results of *map*(*node*) calls. If a node has no child nodes, its *children* attribute is set to *reduce*(empty sequence), which is calculated once at *streem* invocation. If child nodes are present, another iterator that yields values from that level is created and passed to another *reduce* call, and so on recursively, the results of *reduce* calls being saved as the *children* attribute of the parent *Node*.
+Firstly, an iterator over top-level nodes is created and passed as argument to *reduce*. That iterator yields values that are the results of *map*(*Node*) calls. If a node has no child nodes, its *children* attribute is set to *reduce*(empty sequence), which is evaluated once at *streem* invocation. If child nodes are present, another iterator that yields values from that level is created and passed to another *reduce* call, and so on recursively, the results of *reduce* calls being saved as the *children* attribute of the parent *Node*.
 
 The *reduce* callback can exit early after consuming only part of nodes provided by the iterator. In that case, items corresponding to nodes not consumed will be consumed from the source stream but not passed to any callbacks.
 
@@ -86,13 +86,13 @@ reduce([
 
 where *NC* = *reduce*(empty sequence).
 
-#### Iterator restrictions
+#### Iterator expiration
 
 The iterator passed to *reduce* must have its values consumed prior to the *reduce* callback exiting, and *reduce* can’t access the data through any other iterators, including ones passed to other *reduce* calls. Storing the iterator and attempting to extract values from it later is not permitted and will raise *streem.LogicError*. In particular, *reduce* can’t return a generator or another lazy object that hasn’t yet consumed data from the iterator. This is because the underlying iterator over *items* will have advanced to following items and the items required for constructing the nodes will no longer be available.
 
 #### Default callbacks
 
-The default *map* and *reduce* callbacks are such that the return value of *streem* is a list of simple Python objects. Each node is represented by *(value, list of children)* tuple or simply *value* for childless nodes. If an entry exists in *mandatory_levels* that is greater than the level of a node, its children are listed even if there are none, ensuring the *(value, possibly empty list of children)* tuple form. This is independent of the value of the *mandatory_levels_all* parameter.
+The default *map* and *reduce* callbacks are such that the return value of *streem* is a list of simple Python objects. Each node is represented by (*value*, list of children) tuple or simply *value* for childless nodes. If an entry exists in *mandatory_levels* that is greater than the level of a node, its children are listed even if there are none, ensuring the (*value*, possibly empty list of children) tuple form. This is independent of the value of the *mandatory_levels_all* parameter.
 
 Set *map* = *None* explicitly to get *Node* objects without any mapping, that is, identically to *map* = lambda *n*: *n*.
 

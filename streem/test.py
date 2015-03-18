@@ -65,6 +65,13 @@ x+                    | ....[18] <hello>
  -#</>-               |
 y                     |
 z                     |
+=top                  | .[1] top
+=====with_levels:     | ..[3] None
+#{+                   | ...[5] with_levels:
+  null value with     | ....[6] null value with
+  next_level_rel      | ....[6] next_level_rel
+ -#}                  | 
+THE_END               | ...[5] THE_END
 """
 
 re_line = re.compile(r"^([=]*)([+]*)([-]*)([#]?)([^#=+-]+?)([=]*)([+]*)([-]*)$")

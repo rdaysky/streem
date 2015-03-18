@@ -3,12 +3,12 @@ from distutils.core import setup
 setup(
     name = "streem",
     packages = ["streem"],
-    version = "1.0",
+    version = "1.0.1",
     description = "Turning streams into trees",
     author = "Roman Odaisky",
     author_email = "roma@qwertty.com",
     url = "https://github.com/rdaysky/streem",
-    download_url = "https://github.com/rdaysky/streem/tarball/1.0",
+    download_url = "https://github.com/rdaysky/streem/archive/v1.0.1.tar.gz",
     keywords = ["stream", "tree"],
     install_requires = ["more_itertools"],
     classifiers = [
