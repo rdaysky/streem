@@ -9,9 +9,15 @@ class LogicError(RuntimeError):
 
 class ItemError(RuntimeError):
     def __init__(self, what, item_value, item_level):
-        self.item_value = item_value
-        self.item_level = item_level
         super(ItemError, self).__init__(what, item_value, item_level)
+
+    @property
+    def item_value(self):
+        return self.args[1]
+
+    @property
+    def item_level(self):
+        return self.args[1]
 
 SIMPLE_MAP = object()
 
@@ -107,7 +113,7 @@ class NodeIterator:
 
     def __init__(self, src, parent=None):
         self.src = src
-        self.level = self.src.iter.peek()[1]
+        self.level = self.src.iter.peek(default=(None, None))[1]
         self.parent = parent
 
         self.src.ni_active = self

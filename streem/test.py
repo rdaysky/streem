@@ -139,6 +139,9 @@ class TestStreem(unittest.TestCase):
             else:
                 self.assertRaises(streem.LogicError, next, it)
 
+    def test_empty(self):
+        self.assertEqual(streem.streem([]), [])
+
 if __name__ == "__main__":
     unittest.main()
 
