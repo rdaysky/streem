@@ -23,7 +23,7 @@ SIMPLE_MAP = object()
 
 _REDUCE_DEFAULT = list
 
-class Item:
+class Item(object):
     __slots__ = ["value", "level", "level_rel", "next_level", "next_level_rel"]
 
     def __init__(self, value=None, level=None, level_rel=None, next_level=None, next_level_rel=None):
@@ -54,7 +54,7 @@ class Item:
             ("NLR", self.next_level_rel),
         ] if v is not None))
 
-class Node:
+class Node(object):
     __slots__ = ["level", "value", "children"]
 
     def __init__(self, level, value, children):
@@ -89,7 +89,7 @@ def with_levels(items, starting_level, mandatory_levels, mandatory_levels_all):
         yield item_value, item_level
         last_level = item_level
 
-class SourceData:
+class SourceData(object):
     __slots__ = ["mandatory_levels_max", "iter", "f_map", "f_reduce", "reduce_of_no_children", "ni_active"]
 
     def __init__(self, items, f_map, f_reduce, starting_level, mandatory_levels, mandatory_levels_all):
@@ -108,7 +108,7 @@ class SourceData:
     def simple_struct_from_node(self, n):
         return (n.value, n.children) if n.children or (self.mandatory_levels_max is not None and n.level < self.mandatory_levels_max) else n.value
 
-class NodeIterator:
+class NodeIterator(object):
     __slots__ = ["src", "level", "parent"]
 
     def __init__(self, src, parent=None):

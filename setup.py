@@ -1,14 +1,16 @@
 from distutils.core import setup
 
+VERSION = "1.0.3"
+
 setup(
     name = "streem",
     packages = ["streem"],
-    version = "1.0.2",
+    version = VERSION,
     description = "Turning streams into trees",
     author = "Roman Odaisky",
     author_email = "roma@qwertty.com",
     url = "https://github.com/rdaysky/streem",
-    download_url = "https://github.com/rdaysky/streem/archive/v1.0.2.tar.gz",
+    download_url = "https://github.com/rdaysky/streem/archive/v%s.tar.gz" % VERSION,
     keywords = ["stream", "tree"],
     install_requires = ["more_itertools"],
     classifiers = [
