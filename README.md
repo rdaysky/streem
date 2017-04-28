@@ -10,11 +10,11 @@ The module is iterator-based and does not build the whole tree in memory unless 
 
 To use, first build a sequence of **streem.Item** objects from source data:
 
-streem.**Item**(*value*, [*level* | *level_rel*], [*next_level* | *next_level_rel*])
+streem.**Item**([*value*=SKIP_ITEM, [*level* | *level_rel*]], [*next_level* | *next_level_rel*])
 
 #### Parameters
 
-* **value** — The value associated with the given item. If *None*, no node will be output, but the level parameters will still be taken into account, possibly affecting subsequent items.
+* **value** — The value associated with the given item. If absent, no node will be output, but the next_level parameters will still be taken into account, possibly affecting subsequent items.
 * **level** — The nesting level of the item, an integer.
 * **level_rel** — The level relative to the default level (taken from the previous item), an integer.
 * **next_level** — The default nesting level of the next item, an integer.
@@ -24,12 +24,14 @@ If *level* is supplied, that’s the exact nesting level of the item. Items with
 
 The next_level parameters can be provided to affect the *default level* of the following item, which would otherwise be equal to the calculated level of the current item. While *next_level* sets it directly, *next_level_rel* is added to level of the current item. Both parameters can’t be supplied at the same time.
 
+When no *value* is given, *level[_rel]* can’t be given either. Use *next_level[_rel]* to affect subsequent items. An *Item* without any parameters at all has no effect as though it weren't present in the sequence.
+
 #### Examples
 
 Source entries | Possible corresponding items
 -------------- | ----------------------------
 &lt;h1&gt;xyzzy&lt;/h1&gt;<br>&lt;h2&gt;plugh&lt;/h2&gt;<br>&lt;p&gt;text&lt;/p&gt; | *Item*(*value*="xyzzy", *level*=1)<br>*Item*(*value*="plugh", *level*=2)<br>*Item*(*value*="text", *level*=999)
-&lt;outer&gt;<br>text node<br>&lt;inner&gt;<br>more text<br>&lt;/inner&gt;<br>&lt;/outer&gt; | *Item*(*value*=Element("outer"), *next_level_rel*=+1)<br>*Item*(*value*=TextNode("text node"))<br>*Item*(*value*=Element("inner"), *next_level_rel*=+1)<br>*Item*(*value*=TextNode("more text"))<br>*Item*(*value*=*None*, *level_rel*=-1)<br>*Item*(*value*=*None*, *level_rel*=-1)<br>
+&lt;outer&gt;<br>text node<br>&lt;inner&gt;<br>more text<br>&lt;/inner&gt;<br>&lt;/outer&gt; | *Item*(*value*=Element("outer"), *next_level_rel*=+1)<br>*Item*(*value*=TextNode("text node"))<br>*Item*(*value*=Element("inner"), *next_level_rel*=+1)<br>*Item*(*value*=TextNode("more text"))<br>*Item*(*next_level_rel*=-1)<br>*Item*(*next_level_rel*=-1)<br>
 
 
 ## The conversion

@@ -2,7 +2,7 @@
 
 from more_itertools import peekable
 
-__all__ = ["LogicError", "ItemError", "SIMPLE_MAP", "Item", "Node", "streem"]
+__all__ = ["LogicError", "ItemError", "SIMPLE_MAP", "SKIP_ITEM", "Item", "Node", "streem"]
 
 class LogicError(RuntimeError):
     pass
@@ -19,15 +19,19 @@ class ItemError(RuntimeError):
     def item_level(self):
         return self.args[1]
 
-SIMPLE_MAP = object()
+SKIP_ITEM = object()
 
+SIMPLE_MAP = object()
 _REDUCE_DEFAULT = list
 
 class Item(object):
     __slots__ = ["value", "level", "level_rel", "next_level", "next_level_rel"]
 
-    def __init__(self, value=None, level=None, level_rel=None, next_level=None, next_level_rel=None):
+    def __init__(self, value=SKIP_ITEM, level=None, level_rel=None, next_level=None, next_level_rel=None):
         self.value = value
+
+        if value is SKIP_ITEM and (level is not None or level_rel is not None):
+            raise TypeError("level[_rel] can't be present without a value (use next_level[_rel] instead)")
 
         if level is not None and level_rel is not None:
             raise TypeError("level and level_rel can't both be present")
@@ -47,12 +51,15 @@ class Item(object):
         return self.value, item_level, next_item_level
 
     def __repr__(self):
-        return "Item({!r}, {})".format(self.value, ", ".join(("{}={:+d}" if k.endswith("R") else "{}={}").format(k, v) for k, v in [
-            ("L",   self.level),
-            ("LR",  self.level_rel),
-            ("NL",  self.next_level),
-            ("NLR", self.next_level_rel),
-        ] if v is not None))
+        return "Item({})".format(
+            ", ".join(x for x in [repr(self.value) if self.value is not SKIP_ITEM else ""] + [
+            ("{}={:+d}" if k.endswith("R") else "{}={}").format(k, v) for k, v in [
+                ("L",   self.level),
+                ("LR",  self.level_rel),
+                ("NL",  self.next_level),
+                ("NLR", self.next_level_rel),
+            ] if v is not None] if x)
+        )
 
 class Node(object):
     __slots__ = ["level", "value", "children"]
@@ -66,7 +73,8 @@ class Node(object):
         return "Node({!r}, {!r}, {!r})".format(self.level, self.value, self.children)
 
     def as_text(self, indent=".", _nest_level=0):
-        return "{}[{}] {}".format(str(indent) * _nest_level, self.level, self.value) + "".join("\n" + c.as_text(indent, _nest_level + 1) for c in self.children)
+        return "{}[{}] {}{}".format(str(indent) * _nest_level, self.level, self.value,
+            "".join("\n" + c.as_text(indent, _nest_level + 1) for c in self.children))
 
 def with_levels(items, starting_level, mandatory_levels, mandatory_levels_all):
     level = starting_level
@@ -75,7 +83,7 @@ def with_levels(items, starting_level, mandatory_levels, mandatory_levels_all):
     for item in items:
         item_value, item_level, level = item.get(level)
 
-        if item_value is None:
+        if item_value is SKIP_ITEM:
             continue
 
         if mandatory_levels_all:
@@ -106,7 +114,8 @@ class SourceData(object):
         self.ni_active = None
 
     def simple_struct_from_node(self, n):
-        return (n.value, n.children) if n.children or (self.mandatory_levels_max is not None and n.level < self.mandatory_levels_max) else n.value
+        return (n.value, n.children) if n.children or (self.mandatory_levels_max is not None
+            and n.level < self.mandatory_levels_max) else n.value
 
 class NodeIterator(object):
     __slots__ = ["src", "level", "parent"]
@@ -129,7 +138,8 @@ class NodeIterator(object):
         assert item_level <= self.level
         if item_level < self.level:
             if self.parent is None or item_level > self.parent.level:
-                raise ItemError("unexpected level {} (current {}, parent {})".format(item_level, self.level, self.parent.level if self.parent else None), item_value, item_level)
+                raise ItemError("unexpected level {} (current {}, parent {})".format(
+                    item_level, self.level, self.parent.level if self.parent else None), item_value, item_level)
             raise StopIteration()
 
         next(self.src.iter)
@@ -154,5 +164,6 @@ class NodeIterator(object):
     next = __next__
 
 def streem(items, map=SIMPLE_MAP, reduce=None, starting_level=0, mandatory_levels=[], mandatory_levels_all=False):
-    return (reduce or _REDUCE_DEFAULT)(NodeIterator(SourceData(items, map, reduce, starting_level, mandatory_levels, mandatory_levels_all)))
+    return (reduce or _REDUCE_DEFAULT)(NodeIterator(
+        SourceData(items, map, reduce, starting_level, mandatory_levels, mandatory_levels_all)))
 
